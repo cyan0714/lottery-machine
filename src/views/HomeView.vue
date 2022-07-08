@@ -15,7 +15,7 @@
       <div class="right-box">
         <div class="winner-area">
           <h3>摇摇机动态</h3>
-          <div class="lottery-content" :style="{'--activity-lottery-height': lotteryListHeight}">
+          <div class="lottery-content" :style="{'--activity-lottery-height': lotteryListHeight, '--activity-lottery-time': lotteryListAnimationTimeText}">
             <ul ref="lotteryList">
               <li v-for="(item, index) in scrollNames" :key="index">
                 <span>{{ item.name }} 今天吃 </span><span class="food">{{ `#${item.food}#` }}</span>
@@ -23,14 +23,14 @@
             </ul>
           </div>
         </div>
-        <button size="medium" @click="beginShake" class="start" :disabled="disabled">摇一摇</button>
+        <el-button size="medium" @click="beginShake" class="start" :disabled="disabled">{{countDownText}}</el-button>
       </div>
     </div>
   </div>
 </template>
 <script>
-import initStatus from '@/assets/init_status.png'
-import lottering from '@/assets/lottering.png'
+import initStatus from '@/imgs/lottery/init_status.png'
+import lottering from '@/imgs/lottery/lottering.png'
 
 export default {
   name: "lottery",
@@ -41,21 +41,17 @@ export default {
       isChangeFood: true,
       disabled: false,
       foodListHeight: '',
-      lotteryListHeight: '',
+      lotteryListHeight: '-135px',
+      lotteryListAnimationTime: 4,
+      lotteryListAnimationTimeText: '4s',
       food: '',
+      countDownText: '摇一摇',
       scrollNames: [
         { name: '吴多萍', food: '烧烤' },
-        { name: '卢佳佳', food: '外婆家的菜' },
+        { name: '卢佳佳', food: '外婆家的菜外婆家的菜外婆家的菜' },
         { name: '吴多萍', food: '嘉陵食堂' },
         { name: '卢佳佳', food: '烧烤' },
         { name: '吴多萍', food: '烧烤' },
-        { name: '卢佳佳', food: '外婆家的菜' },
-        { name: '吴多萍', food: '嘉陵食堂' },
-        { name: '卢佳佳', food: '烧烤' },
-        { name: '吴多萍', food: '烧烤' },
-        { name: '卢佳佳', food: '外婆家的菜' },
-        { name: '吴多萍', food: '嘉陵食堂' },
-        { name: '卢佳佳', food: '烧烤' },
       ],
       foods: [
         '兰州拉面',
@@ -70,14 +66,11 @@ export default {
       ],
     };
   },
-  mounted() {
-    // 获取获奖名单所在盒子高度
-    this.lotteryListHeight = '-' + this.$refs.lotteryList.offsetHeight + 'px'
-  },
   methods: {
     beginShake() {
       this.imgUrl = lottering
       this.isShowFoodList = true;
+      this.countDown()
 
       // 获取食品列表所在盒子高度
       this.$nextTick(() => {
@@ -88,6 +81,10 @@ export default {
       // 5秒后随机产生一种食物
       setTimeout(() => {
         this.food = this.foods[this.getRandomIntInclusive(0,3)]
+        this.scrollNames.push({name: 'Cyan', food: this.food})
+        // 刷新获奖名单所在盒子高度
+        this.lotteryListHeight = '-' + this.$refs.lotteryList.offsetHeight + 'px'
+        this.lotteryListAnimationTimeText = ++this.lotteryListAnimationTime +'s'
         this.isShowFoodList = false
       }, 5000)
 
@@ -95,6 +92,15 @@ export default {
         this.imgUrl = initStatus
         this.disabled = false
       }, 7000)
+    },
+
+    countDown() {
+      let countDownNumber = 5
+      this.countDownText = countDownNumber
+      const countDownInterval = setInterval(() => {
+        this.countDownText = countDownNumber === 0 ? '摇一摇' : --countDownNumber
+        if (this.countDownText === '摇一摇') clearInterval(countDownInterval)
+      }, 1000)
     },
 
     getRandomIntInclusive(min, max) {
@@ -117,11 +123,12 @@ export default {
     position: relative;
     .random-machine {
       width: 120px;
-      height: 24px;
+      height: 75px;
+      line-height: 75px;
       overflow: hidden;
       position: absolute;
       left: 50%;
-      top: 75px;
+      top: 50px;
       transform: translateX(-50%);
       @keyframes activity-foods-slider {
         0% {
@@ -136,7 +143,7 @@ export default {
         color: #fff;
       }
       ul {
-        animation: 6s activity-foods-slider linear infinite;
+        animation: 1s activity-foods-slider linear infinite;
       }
     }
   }
@@ -164,10 +171,8 @@ export default {
       }
       ul {
         margin-left: 15px;
-        animation: 10s activity-lottery-slider linear infinite;
+        animation: var(--activity-lottery-time) activity-lottery-slider linear infinite;
         li {
-          display: flex;
-          align-items: center;
           margin: 10px 0;
           font-size: 14px;
           .food {
@@ -176,8 +181,10 @@ export default {
           }
           &::before {
             content: "";
+            display: inline-block;
             width: 4px;
             height: 4px;
+            vertical-align: middle;
             border-radius: 50%;
             margin-right: 5px;
             background-color: #000;
@@ -188,13 +195,18 @@ export default {
         }
       }
     }
+    .el-button {
+      border: 1px solid transparent;
+      padding: 0;
+    }
+    ::v-deep .el-button--medium {
+      padding: 0;
+      font-size: 16px;
+    }
     .start {
       display: block;
       margin: 10px auto 0;
-      padding: 0;
       width: 120px;
-      border: 1px solid transparent;
-      font-size: 16px;
       background-color: #f560a5;
       color: #fff;
       font-weight: bold;
@@ -206,4 +218,3 @@ export default {
   }
 }
 </style>
-
