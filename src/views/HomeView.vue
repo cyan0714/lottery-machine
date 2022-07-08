@@ -23,7 +23,7 @@
             </ul>
           </div>
         </div>
-        <el-button size="medium" @click="beginShake" class="start" :disabled="disabled">摇一摇</el-button>
+        <button size="medium" @click="beginShake" class="start" :disabled="disabled">摇一摇</button>
       </div>
     </div>
   </div>
@@ -188,18 +188,13 @@ export default {
         }
       }
     }
-    .el-button {
-      border: 1px solid transparent;
-      padding: 0;
-    }
-    ::v-deep .el-button--medium {
-      padding: 0;
-      font-size: 16px;
-    }
     .start {
       display: block;
       margin: 10px auto 0;
+      padding: 0;
       width: 120px;
+      border: 1px solid transparent;
+      font-size: 16px;
       background-color: #f560a5;
       color: #fff;
       font-weight: bold;
