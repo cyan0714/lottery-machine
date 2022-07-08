@@ -1,18 +1,214 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="container">
+    <div class="foodie-wrapper">
+      <div class="left-box">
+        <img :src='imgUrl' alt="" />
+        <div class="random-machine" :style="{'--activity-foods-height': foodListHeight}">
+          <div class="random-result" v-show="!isShowFoodList && disabled">{{ food }}</div>
+          <ul ref="foodList" v-show="isShowFoodList">
+            <li v-for="(food,index) in foods" :key="index">
+              <span class="food">{{ food }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="right-box">
+        <div class="winner-area">
+          <h3>摇摇机动态</h3>
+          <div class="lottery-content" :style="{'--activity-lottery-height': lotteryListHeight}">
+            <ul ref="lotteryList">
+              <li v-for="(item, index) in scrollNames" :key="index">
+                <span>{{ item.name }} 今天吃 </span><span class="food">{{ `#${item.food}#` }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <el-button size="medium" @click="beginShake" class="start" :disabled="disabled">摇一摇</el-button>
+      </div>
+    </div>
   </div>
 </template>
-
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import initStatus from '@/assets/init_status.png'
+import lottering from '@/assets/lottering.png'
 
 export default {
-  name: 'HomeView',
-  components: {
-    HelloWorld
+  name: "lottery",
+  data() {
+    return {
+      imgUrl: initStatus,
+      isShowFoodList: false,
+      isChangeFood: true,
+      disabled: false,
+      foodListHeight: '',
+      lotteryListHeight: '',
+      food: '',
+      scrollNames: [
+        { name: '吴多萍', food: '烧烤' },
+        { name: '卢佳佳', food: '外婆家的菜' },
+        { name: '吴多萍', food: '嘉陵食堂' },
+        { name: '卢佳佳', food: '烧烤' },
+        { name: '吴多萍', food: '烧烤' },
+        { name: '卢佳佳', food: '外婆家的菜' },
+        { name: '吴多萍', food: '嘉陵食堂' },
+        { name: '卢佳佳', food: '烧烤' },
+        { name: '吴多萍', food: '烧烤' },
+        { name: '卢佳佳', food: '外婆家的菜' },
+        { name: '吴多萍', food: '嘉陵食堂' },
+        { name: '卢佳佳', food: '烧烤' },
+      ],
+      foods: [
+        '兰州拉面',
+        '海口麻辣大拌',
+        '北京烤鸭',
+        '重庆酸辣粉',
+        '武汉热干面',
+        '广东肠粉',
+        '广西桂林米粉',
+        '西安羊肉泡馍',
+        '宁夏手抓羊肉'
+      ],
+    };
+  },
+  mounted() {
+    // 获取获奖名单所在盒子高度
+    this.lotteryListHeight = '-' + this.$refs.lotteryList.offsetHeight + 'px'
+  },
+  methods: {
+    beginShake() {
+      this.imgUrl = lottering
+      this.isShowFoodList = true;
+
+      // 获取食品列表所在盒子高度
+      this.$nextTick(() => {
+        this.foodListHeight = '-' + this.$refs.foodList.offsetHeight + 'px'
+      })
+      this.disabled = true;
+
+      // 5秒后随机产生一种食物
+      setTimeout(() => {
+        this.food = this.foods[this.getRandomIntInclusive(0,3)]
+        this.isShowFoodList = false
+      }, 5000)
+
+      setTimeout(() => {
+        this.imgUrl = initStatus
+        this.disabled = false
+      }, 7000)
+    },
+
+    getRandomIntInclusive(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
+    }
+  },
+};
+</script>
+<style lang="scss" scoped>
+.foodie-wrapper {
+  display: flex;
+  width: 500px;
+  padding: 20px;
+  padding-bottom: 10px;
+  background-color: #ffcd00;
+  border-radius: 10px;
+  .left-box {
+    position: relative;
+    .random-machine {
+      width: 120px;
+      height: 24px;
+      overflow: hidden;
+      position: absolute;
+      left: 50%;
+      top: 75px;
+      transform: translateX(-50%);
+      @keyframes activity-foods-slider {
+        0% {
+        }
+        100% {
+          transform: translateY(var(--activity-foods-height));
+        }
+      }
+      .random-result, ul {
+        text-align: center;
+        font-size: 18px;
+        color: #fff;
+      }
+      ul {
+        animation: 6s activity-foods-slider linear infinite;
+      }
+    }
+  }
+  .right-box {
+    margin-left: 20px;
+    .winner-area {
+      padding: 10px 20px 10px 10px;
+      border-radius: 8px;
+      background-color: #ffdc49;
+      h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+      .lottery-content {
+        height: 135px;
+        overflow: hidden;
+        position: relative;
+        @keyframes activity-lottery-slider {
+          0% {
+          }
+          100% {
+            transform: translateY(var(--activity-lottery-height));
+          }
+        }
+      }
+      ul {
+        margin-left: 15px;
+        animation: 10s activity-lottery-slider linear infinite;
+        li {
+          display: flex;
+          align-items: center;
+          margin: 10px 0;
+          font-size: 14px;
+          .food {
+            margin-left: 6px;
+            color: #1e25ac;
+          }
+          &::before {
+            content: "";
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            margin-right: 5px;
+            background-color: #000;
+          }
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+    .el-button {
+      border: 1px solid transparent;
+      padding: 0;
+    }
+    ::v-deep .el-button--medium {
+      padding: 0;
+      font-size: 16px;
+    }
+    .start {
+      display: block;
+      margin: 10px auto 0;
+      width: 120px;
+      background-color: #f560a5;
+      color: #fff;
+      font-weight: bold;
+      line-height: 36px;
+      border-radius: 20px;
+      text-align: center;
+      cursor: pointer;
+    }
   }
 }
-</script>
+</style>
+
