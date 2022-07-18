@@ -15,12 +15,14 @@
       <div class="right-box">
         <div class="winner-area">
           <h3>摇摇机动态</h3>
-          <div class="lottery-content" :style="{'--activity-lottery-height': lotteryListHeight, '--activity-lottery-time': lotteryListAnimationTimeText}">
-            <ul ref="lotteryList">
-              <li v-for="(item, index) in scrollNames" :key="index">
-                <span>{{ item.name }} 今天吃 </span><span class="food">{{ `#${item.food}#` }}</span>
-              </li>
-            </ul>
+          <div class="lottery-content">
+            <vue-seamless-scroll :data="scrollNames" :class-option="classOption" class="warp" ref="seamlessScroll">
+              <ul>
+                <li v-for="(item, index) in scrollNames" :key="index">
+                  <span>{{ item.name }} 今天吃 </span><span class="food">{{ `#${item.food}#` }}</span>
+                </li>
+              </ul>
+            </vue-seamless-scroll>
           </div>
         </div>
         <el-button size="medium" @click="beginShake" class="start" :disabled="disabled">{{countDownText}}</el-button>
@@ -29,11 +31,15 @@
   </div>
 </template>
 <script>
-import initStatus from '@/imgs/lottery/init_status.png'
-import lottering from '@/imgs/lottery/lottering.png'
+import initStatus from '@/assets/init_status.png'
+import lottering from '@/assets/lottering.png'
+import vueSeamlessScroll from 'vue-seamless-scroll'
 
 export default {
   name: "lottery",
+  components: {
+    vueSeamlessScroll
+  },
   data() {
     return {
       imgUrl: initStatus,
@@ -41,11 +47,11 @@ export default {
       isChangeFood: true,
       disabled: false,
       foodListHeight: '',
-      lotteryListHeight: '-135px',
-      lotteryListAnimationTime: 4,
-      lotteryListAnimationTimeText: '4s',
       food: '',
       countDownText: '摇一摇',
+      classOption: {
+        step: 0.5
+      },
       scrollNames: [
         { name: '吴多萍', food: '烧烤' },
         { name: '卢佳佳', food: '外婆家的菜外婆家的菜外婆家的菜' },
@@ -78,15 +84,13 @@ export default {
       })
       this.disabled = true;
 
-      // 5秒后随机产生一种食物
+      // 3秒后随机产生一种食物
       setTimeout(() => {
-        this.food = this.foods[this.getRandomIntInclusive(0,3)]
-        this.scrollNames.push({name: 'Cyan', food: this.food})
-        // 刷新获奖名单所在盒子高度
-        this.lotteryListHeight = '-' + this.$refs.lotteryList.offsetHeight + 'px'
-        this.lotteryListAnimationTimeText = ++this.lotteryListAnimationTime +'s'
+        this.food = this.foods[this.getRandomIntInclusive(0, this.foods.length - 1)]
+        this.scrollNames.push({ name: 'Cyan', food: this.food })
+        this.$refs.seamlessScroll.reset()
         this.isShowFoodList = false
-      }, 5000)
+      }, 3000)
 
       setTimeout(() => {
         this.imgUrl = initStatus
@@ -95,7 +99,7 @@ export default {
     },
 
     countDown() {
-      let countDownNumber = 5
+      let countDownNumber = 3
       this.countDownText = countDownNumber
       const countDownInterval = setInterval(() => {
         this.countDownText = countDownNumber === 0 ? '摇一摇' : --countDownNumber
@@ -161,17 +165,9 @@ export default {
         height: 135px;
         overflow: hidden;
         position: relative;
-        @keyframes activity-lottery-slider {
-          0% {
-          }
-          100% {
-            transform: translateY(var(--activity-lottery-height));
-          }
-        }
       }
       ul {
         margin-left: 15px;
-        animation: var(--activity-lottery-time) activity-lottery-slider linear infinite;
         li {
           margin: 10px 0;
           font-size: 14px;
